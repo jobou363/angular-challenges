@@ -39,11 +39,21 @@ export class AppComponent {
     this.submit$$
       .pipe(
         map(() => this.input),
-        concatMap((value) =>
-          this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`),
+        concatMap(
+          (value) =>
+            this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`),
+          /*.pipe(
+            catchError((err) => of(console.log('Could not fetch api', err)))
+          ),
+          */
         ),
         takeUntilDestroyed(this.destroyRef),
-        catchError((err, caught) => caught),
+        // catchError((err, caught) => caught),
+        catchError((error, caught) => {
+          console.log(error);
+          this.response = error;
+          return caught;
+        }),
       )
       .subscribe({
         next: (value) => {

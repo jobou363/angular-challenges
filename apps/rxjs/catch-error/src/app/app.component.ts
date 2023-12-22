@@ -1,9 +1,9 @@
-import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, concatMap, map } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Subject, catchError, concatMap, map } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -11,9 +11,9 @@ import { Subject, concatMap, map } from 'rxjs';
   selector: 'app-root',
   template: `
     <div class="form-container">
-      <span
-        >possible values: posts, comments, albums, photos, todos, users</span
-      >
+      <span>
+        possible values: posts, comments, albums, photos, todos, users
+      </span>
     </div>
     <form class="form-container" (ngSubmit)="submit$$.next()">
       <input
@@ -40,9 +40,10 @@ export class AppComponent {
       .pipe(
         map(() => this.input),
         concatMap((value) =>
-          this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`)
+          this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`),
         ),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err, caught) => caught),
       )
       .subscribe({
         next: (value) => {
